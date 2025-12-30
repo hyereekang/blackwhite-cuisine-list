@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { fetchRestaurants } from './services/geminiService';
 import { RestaurantResponse } from './types';
@@ -13,12 +12,25 @@ const App: React.FC = () => {
   const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
+    
+    // Check if API key is present in environment before calling
+    if (!process.env.API_KEY) {
+      setError("API 키가 설정되지 않았습니다. 플랫폼 상단의 'API Key' 설정을 확인해주세요.");
+      setLoading(false);
+      return;
+    }
+
     try {
       const result = await fetchRestaurants();
       setData(result);
     } catch (err: any) {
       console.error("Data loading error:", err);
-      setError("실시간 맛집 정보를 가져오는 데 실패했습니다. 잠시 후 다시 시도해주세요.");
+      // Detailed error messages based on common failures
+      if (err.message?.includes("API Key")) {
+        setError("무료 API 키 인증에 실패했습니다. 잠시 후 다시 시도해주세요.");
+      } else {
+        setError("실시간 맛집 정보를 가져오는 데 실패했습니다. 네트워크 상태를 확인해주세요.");
+      }
     } finally {
       setLoading(false);
     }
@@ -59,8 +71,8 @@ const App: React.FC = () => {
               </div>
               <p className="text-zinc-900 font-black text-lg mt-6">실시간 검색 중...</p>
               <p className="text-zinc-400 text-xs font-bold mt-2 text-center leading-relaxed">
-                넷플릭스 흑백요리사 시즌2 출연진의<br/>
-                최신 식당 소식을 구글에서 찾고 있습니다.
+                카드 등록 없이 무료 플랜을 사용하여<br/>
+                셰프들의 최신 정보를 가져오고 있습니다.
               </p>
             </div>
             <SkeletonLoader />
@@ -72,7 +84,7 @@ const App: React.FC = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 15c-.77 1.333.192 3 1.732 3z" />
               </svg>
             </div>
-            <h2 className="text-xl font-black text-zinc-900 mb-3">정보 로드 실패</h2>
+            <h2 className="text-xl font-black text-zinc-900 mb-3">연결 확인 필요</h2>
             <p className="text-zinc-500 text-sm mb-8 leading-relaxed font-bold">{error}</p>
             <button 
               onClick={loadData}
