@@ -1,19 +1,11 @@
 
-export interface RestaurantItem {
-  id: number;
-  name: string;
-  chef: string;
-  chefType: 'BLACK' | 'WHITE';
-  specialty: string;
-  location: string;
-  description: string;
-  keywords: string[];
-  naverMapUrl: string;
+export interface GroundingSource {
+  title: string;
+  uri: string;
 }
 
 export interface RestaurantResponse {
-  restaurants: RestaurantItem[];
+  content: string;
   lastUpdated: string;
-  sourceUrl: string;
-  sources?: { title: string; uri: string }[];
+  sources: GroundingSource[];
 }
