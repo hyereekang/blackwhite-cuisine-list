@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { fetchRestaurants } from './services/geminiService';
 import { RestaurantResponse } from './types';
@@ -12,18 +13,12 @@ const App: React.FC = () => {
     setLoading(true);
     setError(null);
     
-    if (!process.env.API_KEY) {
-      setError("API 키를 찾을 수 없습니다. 환경 설정을 확인해주세요.");
-      setLoading(false);
-      return;
-    }
-
     try {
       const result = await fetchRestaurants();
       setData(result);
     } catch (err: any) {
       console.error("Data loading error:", err);
-      setError("실시간 미식 정보를 가져오는 데 실패했습니다.");
+      setError("데이터를 불러오는 중 문제가 발생했습니다.");
     } finally {
       setLoading(false);
     }
@@ -42,7 +37,7 @@ const App: React.FC = () => {
           </h1>
           <p className="text-[10px] text-slate-400 font-bold mt-1 uppercase tracking-widest flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></span>
-            Real-time Maps Grounding
+            Offline Curated Edition
           </p>
         </div>
         <button 
@@ -61,8 +56,8 @@ const App: React.FC = () => {
           <div className="space-y-6">
             <div className="py-12 px-6 bg-white rounded-3xl border border-slate-100 shadow-sm text-center">
               <div className="w-12 h-12 border-4 border-blue-50 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-              <h3 className="text-slate-900 font-black text-lg">가산동 맛집 탐색 중</h3>
-              <p className="text-slate-400 text-xs font-bold mt-1">Google Maps에서 검증된 장소만 찾는 중입니다.</p>
+              <h3 className="text-slate-900 font-black text-lg">맛집 정보 로딩 중</h3>
+              <p className="text-slate-400 text-xs font-bold mt-1">가디역 최고 인기 장소들을 정리하고 있습니다.</p>
             </div>
             <SkeletonLoader />
           </div>
@@ -78,68 +73,59 @@ const App: React.FC = () => {
           </div>
         ) : (
           <div className="space-y-6">
-            {/* 맛집 요약 설명 섹션 */}
             <section className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
               <div className="flex items-center gap-2 mb-4">
-                <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-[10px] font-black rounded-md border border-blue-100">OVERVIEW</span>
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{data?.lastUpdated} 업데이트</span>
+                <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-[10px] font-black rounded-md border border-blue-100">GASAN HOTSPOTS</span>
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{data?.lastUpdated}</span>
               </div>
               <div className="prose prose-slate max-w-none text-slate-700 text-[14px] leading-relaxed whitespace-pre-wrap font-medium">
                 {data?.content}
               </div>
             </section>
 
-            {/* 개별 맛집 지도 링크 카드 섹션 */}
             <section className="space-y-3">
               <div className="flex items-center gap-2 px-1 mb-1">
                 <svg className="w-4 h-4 text-slate-400" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
                 </svg>
-                <h2 className="text-[13px] font-black text-slate-800 uppercase tracking-tight">지도에서 바로 확인하기</h2>
+                <h2 className="text-[13px] font-black text-slate-800 uppercase tracking-tight">구글 지도에서 위치 보기</h2>
               </div>
 
               <div className="grid gap-3">
-                {data?.sources && data.sources.length > 0 ? (
-                  data.sources.map((source, i) => (
-                    <a 
-                      key={i} 
-                      href={source.uri} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="group flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:border-blue-400 hover:shadow-md transition-all active:scale-[0.98]"
-                    >
-                      <div className="flex-1 min-w-0 pr-4">
-                        <h4 className="text-[15px] font-[900] text-slate-900 group-hover:text-blue-600 transition-colors truncate">
-                          {source.title}
-                        </h4>
-                        <p className="text-[11px] text-slate-400 font-bold flex items-center gap-1 mt-0.5">
-                          <span className="text-blue-500">Google Maps</span>에서 위치 보기
-                        </p>
-                      </div>
-                      <div className="shrink-0 w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        </svg>
-                      </div>
-                    </a>
-                  ))
-                ) : (
-                  <div className="bg-slate-50 p-6 rounded-2xl border border-dashed border-slate-200 text-center">
-                    <p className="text-slate-400 text-xs font-bold">지도 정보를 매칭하지 못했습니다. 새로고침 해주세요.</p>
-                  </div>
-                )}
+                {data?.sources && data.sources.map((source, i) => (
+                  <a 
+                    key={i} 
+                    href={source.uri} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="group flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:border-blue-400 hover:shadow-md transition-all active:scale-[0.98]"
+                  >
+                    <div className="flex-1 min-w-0 pr-4">
+                      <h4 className="text-[15px] font-[900] text-slate-900 group-hover:text-blue-600 transition-colors truncate">
+                        {source.title}
+                      </h4>
+                      <p className="text-[11px] text-slate-400 font-bold flex items-center gap-1 mt-0.5">
+                        <span className="text-blue-500 font-black">Google Maps</span>에서 길찾기
+                      </p>
+                    </div>
+                    <div className="shrink-0 w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      </svg>
+                    </div>
+                  </a>
+                ))}
               </div>
             </section>
           </div>
         )}
       </main>
 
-      {/* 고정 하단 탭바 스타일 안내 */}
       <footer className="fixed bottom-0 left-0 right-0 p-4 z-40 bg-gradient-to-t from-[#F8FAFC] via-[#F8FAFC] to-transparent">
         <div className="max-w-md mx-auto bg-slate-900 text-white rounded-[2rem] px-6 py-4 flex items-center justify-between shadow-2xl shadow-blue-900/20 border border-white/5">
           <div className="flex flex-col">
-            <span className="text-[10px] text-blue-400 font-black tracking-widest uppercase">Location Powered</span>
-            <span className="text-[13px] font-bold">가산디지털단지 맛집 지도</span>
+            <span className="text-[10px] text-blue-400 font-black tracking-widest uppercase">Gasan Navigator</span>
+            <span className="text-[13px] font-bold">오프라인 가이드 모드</span>
           </div>
           <button 
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
