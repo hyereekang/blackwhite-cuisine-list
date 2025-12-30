@@ -1,15 +1,19 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>흑백요리사2 맛집 성지순례</title>
-  <!-- Tailwind CSS Play CDN -->
+  
+  <!-- process 객체 폴리필 (가장 먼저 실행) -->
+  <script>
+    window.process = { env: { API_KEY: "" } };
+  </script>
+
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
   <script>
-    // Tailwind 설정 최적화
     tailwind.config = {
       theme: {
         extend: {
@@ -27,8 +31,8 @@
       padding: 0;
       -webkit-font-smoothing: antialiased;
     }
-    #root:empty {
-      background: #fdfcfb;
+    #root {
+      min-height: 100vh;
     }
   </style>
   <script type="importmap">
@@ -46,11 +50,8 @@
 </head>
 <body>
   <div id="root"></div>
-  <!-- process 객체 전역 선언 (Vercel/브라우저 환경 대응) -->
-  <script>
-    if (typeof window !== 'undefined' && typeof window.process === 'undefined') {
-      window.process = { env: {} };
-    }
-  </script>
+  
+  <!-- 메인 로직 실행 -->
+  <script type="module" src="./index.tsx"></script>
 </body>
 </html>
