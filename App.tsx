@@ -18,7 +18,7 @@ const App: React.FC = () => {
     } catch (err: any) {
       console.error("Data loading error:", err);
       if (err.message === "API_KEY_MISSING") {
-        setError("API_KEY가 설정되지 않았습니다. 환경 변수 설정을 확인해 주세요.");
+        setError("API_KEY가 환경 변수에 설정되지 않았습니다. 앱 설정이나 배포 환경을 확인해 주세요.");
       } else if (err.message.includes("403") || err.message.includes("permission")) {
         setError("API 접근 권한이 없거나 키가 올바르지 않습니다.");
       } else {
@@ -88,9 +88,6 @@ const App: React.FC = () => {
               >
                 다시 시도하기
               </button>
-              <p className="text-[11px] text-slate-400 font-bold">
-                환경 변수에 API_KEY가 정확히 설정되어 있는지 확인해 주세요.
-              </p>
             </div>
           </div>
         ) : (
@@ -132,14 +129,6 @@ const App: React.FC = () => {
               <p className="text-slate-400 text-sm leading-relaxed font-medium mb-8 relative">
                 이 정보는 Google Search Grounding을 통해 실시간으로 검색된 결과입니다. 셰프들의 실제 식당 운영 여부와 예약 방식은 변동될 수 있으므로 반드시 네이버 지도를 통해 재확인하시기 바랍니다.
               </p>
-              
-              <div className="space-y-3 relative">
-                <p className="text-[11px] text-slate-500 font-black uppercase tracking-widest">Technology</p>
-                <div className="flex items-center gap-3 text-sm text-orange-400 font-black">
-                  <div className="w-1.5 h-1.5 bg-orange-500 rounded-full"></div>
-                  Gemini Flash + Google Search Grounding
-                </div>
-              </div>
             </div>
           </div>
         )}
@@ -159,23 +148,12 @@ const App: React.FC = () => {
         <button 
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           className="w-12 h-12 bg-white/10 hover:bg-white/20 text-white rounded-2xl flex items-center justify-center transition-all active:scale-90"
-          aria-label="맨 위로"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 10l7-7m0 0l7 7m-7-7v18" />
           </svg>
         </button>
       </nav>
-
-      <style>{`
-        .fade-in {
-          animation: fadeIn 0.8s cubic-bezier(0.2, 1, 0.2, 1) forwards;
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </div>
   );
 };

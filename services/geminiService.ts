@@ -2,9 +2,15 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { RestaurantResponse } from "../types";
 
 export const fetchRestaurants = async (): Promise<RestaurantResponse> => {
-  // Use the API key directly from process.env.API_KEY as per the hard requirement.
-  // The availability is handled externally.
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
+  // Obtain the API key exclusively from process.env.API_KEY.
+  // We instantiate GoogleGenAI right before the call to ensure the key is correctly captured.
+  const apiKey = process.env.API_KEY;
+
+  if (!apiKey) {
+    throw new Error("API_KEY_MISSING");
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
   const sourceUrl = "https://map.naver.com/p/search/%ED%9D%91%EB%B0%B1%20%EC%9A%94%EB%A6%AC%EC%82%AC";
   
   const prompt = `
