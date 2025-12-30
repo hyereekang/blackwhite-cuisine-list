@@ -15,4 +15,5 @@ export interface RestaurantResponse {
   restaurants: RestaurantItem[];
   lastUpdated: string;
   sourceUrl: string;
+  sources?: { title: string; uri: string }[];
 }
