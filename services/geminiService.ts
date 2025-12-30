@@ -2,16 +2,9 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { RestaurantResponse } from "../types";
 
 export const fetchRestaurants = async (): Promise<RestaurantResponse> => {
-  // Use the API key exclusively from process.env.API_KEY as per guidelines
-  const apiKey = process.env.API_KEY;
-  
-  if (!apiKey) {
-    console.error("API_KEY is missing. Please ensure it is set in the environment variables.");
-    throw new Error("API_KEY_MISSING");
-  }
-
-  // Create instance right before use
-  const ai = new GoogleGenAI({ apiKey });
+  // Use the API key directly from process.env.API_KEY as per the hard requirement.
+  // The availability is handled externally.
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
   const sourceUrl = "https://map.naver.com/p/search/%ED%9D%91%EB%B0%B1%20%EC%9A%94%EB%A6%AC%EC%82%AC";
   
   const prompt = `
@@ -71,8 +64,6 @@ export const fetchRestaurants = async (): Promise<RestaurantResponse> => {
     if (!text) throw new Error("Empty response from AI");
     
     const result = JSON.parse(text);
-    
-    // Add IDs if missing and format last updated
     const formattedRestaurants = result.restaurants.map((r: any, idx: number) => ({
       ...r,
       id: r.id || idx + 1
@@ -84,7 +75,7 @@ export const fetchRestaurants = async (): Promise<RestaurantResponse> => {
       sourceUrl: sourceUrl
     };
   } catch (error) {
-    console.error("Gemini API Error details:", error);
+    console.error("Gemini API Error:", error);
     throw error;
   }
 };
