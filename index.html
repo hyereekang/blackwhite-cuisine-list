@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>흑백요리사2 맛집 성지순례</title>
+  <title>가산 미식 가이드</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -21,7 +21,7 @@
   </script>
   <style>
     body {
-      background-color: #fdfcfb;
+      background-color: #f8fafc;
       margin: 0;
       padding: 0;
       -webkit-font-smoothing: antialiased;
@@ -30,11 +30,16 @@
       min-height: 100vh;
     }
     .fade-in {
-      animation: fadeIn 0.8s cubic-bezier(0.2, 1, 0.2, 1) forwards;
+      animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
+      from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+    .glass {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
   </style>
   <script type="importmap">
