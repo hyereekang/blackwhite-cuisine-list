@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { fetchRestaurants } from './services/geminiService';
 import { RestaurantResponse } from './types';
@@ -19,9 +18,11 @@ const App: React.FC = () => {
     } catch (err: any) {
       console.error("Data loading error:", err);
       if (err.message === "API_KEY_MISSING") {
-        setError("API 키 설정이 필요합니다. 환경 변수를 확인해주세요.");
+        setError("API_KEY가 설정되지 않았습니다. 환경 변수 설정을 확인해 주세요.");
+      } else if (err.message.includes("403") || err.message.includes("permission")) {
+        setError("API 접근 권한이 없거나 키가 올바르지 않습니다.");
       } else {
-        setError("데이터를 불러오는 중 오류가 발생했습니다. (API 할당량 초과 또는 네트워크 오류)");
+        setError("정보를 불러오는 데 실패했습니다. 잠시 후 다시 시도해 주세요.");
       }
     } finally {
       setLoading(false);
@@ -42,7 +43,7 @@ const App: React.FC = () => {
           </h1>
           <div className="flex items-center gap-2 mt-2">
             <div className="flex items-center gap-1.5 px-2 py-0.5 bg-orange-100 text-orange-600 rounded-lg text-[10px] font-black uppercase tracking-widest">
-              Top 10 Pick
+              Live Tracker
             </div>
             <p className="text-[12px] text-slate-500 font-bold">
               시즌2 출연진 식당 가이드
@@ -70,22 +71,27 @@ const App: React.FC = () => {
                 <div className="absolute inset-0 border-[6px] border-orange-50 rounded-full"></div>
                 <div className="absolute inset-0 border-[6px] border-orange-500 rounded-full border-t-transparent animate-spin"></div>
               </div>
-              <p className="text-slate-900 font-black text-xl tracking-tight">화제의 셰프 찾는 중...</p>
-              <p className="text-slate-400 font-bold text-sm mt-2 tracking-tight">실시간 정보를 검색하고 있습니다</p>
+              <p className="text-slate-900 font-black text-xl tracking-tight">최신 맛집 검색 중...</p>
+              <p className="text-slate-400 font-bold text-sm mt-2 tracking-tight">구글 검색으로 정보를 수집하고 있습니다</p>
             </div>
             <SkeletonLoader />
           </div>
         ) : error ? (
           <div className="text-center py-20 px-10 bg-white rounded-[3rem] shadow-xl border border-red-100">
-            <div className="text-7xl mb-8 opacity-80">👨‍🍳</div>
-            <h2 className="text-2xl font-black text-slate-900 mb-4 leading-tight">식당 정보를<br/>가져오지 못했습니다</h2>
+            <div className="text-7xl mb-8">👨‍🍳</div>
+            <h2 className="text-2xl font-black text-slate-900 mb-4 leading-tight">문제가 발생했습니다</h2>
             <p className="text-slate-500 font-bold text-base mb-10 leading-relaxed px-4">{error}</p>
-            <button 
-              onClick={loadData}
-              className="w-full py-5 bg-orange-600 text-white rounded-[1.5rem] font-black text-lg shadow-xl shadow-orange-200 active:scale-95 transition-all hover:bg-orange-700"
-            >
-              다시 시도하기
-            </button>
+            <div className="space-y-3">
+              <button 
+                onClick={loadData}
+                className="w-full py-5 bg-orange-600 text-white rounded-[1.5rem] font-black text-lg shadow-xl shadow-orange-200 active:scale-95 transition-all hover:bg-orange-700"
+              >
+                다시 시도하기
+              </button>
+              <p className="text-[11px] text-slate-400 font-bold">
+                환경 변수에 API_KEY가 정확히 설정되어 있는지 확인해 주세요.
+              </p>
+            </div>
           </div>
         ) : (
           <div className="fade-in space-y-2">
@@ -95,8 +101,8 @@ const App: React.FC = () => {
                   <span className="text-xs font-black">TOP</span>
                 </div>
                 <div>
-                  <h2 className="text-[15px] font-black text-slate-800 leading-tight">가장 핫한 셰프 맛집</h2>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Most Popular Highlights</p>
+                  <h2 className="text-[15px] font-black text-slate-800 leading-tight">실시간 셰프 맛집 리스트</h2>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Search Grounding Active</p>
                 </div>
               </div>
               <div className="text-right">
@@ -124,14 +130,14 @@ const App: React.FC = () => {
                 <h3 className="text-lg font-black italic">안내사항</h3>
               </div>
               <p className="text-slate-400 text-sm leading-relaxed font-medium mb-8 relative">
-                이 리스트는 '흑백요리사 시즌2' 출연진 정보를 실시간 검색을 통해 정리한 것입니다. 정확한 예약 정보와 영업 시간은 <span className="text-white font-black underline decoration-orange-500">네이버 지도</span> 앱을 통해 확인해 주세요.
+                이 정보는 Google Search Grounding을 통해 실시간으로 검색된 결과입니다. 셰프들의 실제 식당 운영 여부와 예약 방식은 변동될 수 있으므로 반드시 네이버 지도를 통해 재확인하시기 바랍니다.
               </p>
               
               <div className="space-y-3 relative">
-                <p className="text-[11px] text-slate-500 font-black uppercase tracking-widest">데이터 출처</p>
+                <p className="text-[11px] text-slate-500 font-black uppercase tracking-widest">Technology</p>
                 <div className="flex items-center gap-3 text-sm text-orange-400 font-black">
                   <div className="w-1.5 h-1.5 bg-orange-500 rounded-full"></div>
-                  실시간 AI 검색 기반 큐레이션
+                  Gemini Flash + Google Search Grounding
                 </div>
               </div>
             </div>
@@ -145,10 +151,10 @@ const App: React.FC = () => {
           <div className="flex items-center gap-2 mb-0.5">
             <div className="w-2 h-2 bg-orange-500 rounded-full animate-ping"></div>
             <span className="text-[11px] text-orange-500 font-black tracking-widest uppercase">
-              Curated List
+              Now Curating
             </span>
           </div>
-          <span className="text-[15px] font-black text-white tracking-tight">흑백요리사 성지순례 리스트</span>
+          <span className="text-[15px] font-black text-white tracking-tight">흑백요리사 2 성지순례 가이드</span>
         </div>
         <button 
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
