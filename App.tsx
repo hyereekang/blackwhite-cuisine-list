@@ -16,8 +16,13 @@ const App: React.FC = () => {
     try {
       const result = await fetchRestaurants();
       setData(result);
-    } catch (err) {
-      setError("데이터를 불러오는 데 실패했습니다. 네트워크 상태를 확인해 주세요.");
+    } catch (err: any) {
+      console.error("Data loading error:", err);
+      if (err.message === "API_KEY_MISSING") {
+        setError("API 키 설정이 필요합니다. 환경 변수를 확인해주세요.");
+      } else {
+        setError("데이터를 불러오는 중 오류가 발생했습니다. (API 할당량 초과 또는 네트워크 오류)");
+      }
     } finally {
       setLoading(false);
     }
@@ -28,28 +33,29 @@ const App: React.FC = () => {
   }, [loadData]);
 
   return (
-    <div className="max-w-md mx-auto min-h-screen bg-[#FDFCFB] pb-40">
+    <div className="max-w-md mx-auto min-h-screen bg-[#FDFCFB] pb-40 transition-colors duration-500">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-orange-100 px-6 py-6 flex items-center justify-between shadow-sm">
-        <div>
+        <div className="flex flex-col">
           <h1 className="text-[26px] font-[1000] text-zinc-900 tracking-tighter flex items-center gap-2 leading-none">
             <span className="text-orange-600">성지순례</span>흑백<span className="text-orange-600">맛집</span>
           </h1>
           <div className="flex items-center gap-2 mt-2">
             <div className="flex items-center gap-1.5 px-2 py-0.5 bg-orange-100 text-orange-600 rounded-lg text-[10px] font-black uppercase tracking-widest">
-              Top 10 Recommended
+              Top 10 Pick
             </div>
             <p className="text-[12px] text-slate-500 font-bold">
-              흑백요리사 시즌2 출연진
+              시즌2 출연진 식당 가이드
             </p>
           </div>
         </div>
         <button 
           onClick={loadData}
           disabled={loading}
-          className="w-12 h-12 flex items-center justify-center bg-slate-50 hover:bg-orange-50 hover:text-orange-600 text-slate-400 rounded-2xl transition-all active:scale-90 shadow-sm"
+          className="w-12 h-12 flex items-center justify-center bg-slate-50 hover:bg-orange-50 hover:text-orange-600 text-slate-400 rounded-2xl transition-all active:scale-90 shadow-sm disabled:opacity-50"
+          title="새로고침"
         >
-          <svg className={`w-7 h-7 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className={`w-7 h-7 ${loading ? 'animate-spin text-orange-500' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
         </button>
@@ -64,19 +70,19 @@ const App: React.FC = () => {
                 <div className="absolute inset-0 border-[6px] border-orange-50 rounded-full"></div>
                 <div className="absolute inset-0 border-[6px] border-orange-500 rounded-full border-t-transparent animate-spin"></div>
               </div>
-              <p className="text-slate-900 font-black text-xl tracking-tight">추천 맛집 리스트 생성 중</p>
-              <p className="text-slate-400 font-bold text-sm mt-2 tracking-tight">화제의 셰프 식당을 스캔합니다</p>
+              <p className="text-slate-900 font-black text-xl tracking-tight">화제의 셰프 찾는 중...</p>
+              <p className="text-slate-400 font-bold text-sm mt-2 tracking-tight">실시간 정보를 검색하고 있습니다</p>
             </div>
             <SkeletonLoader />
           </div>
         ) : error ? (
-          <div className="text-center py-24 px-10 bg-white rounded-[3rem] shadow-xl border border-red-100">
-            <div className="text-7xl mb-8">🍲</div>
-            <h2 className="text-2xl font-black text-slate-900 mb-4 leading-tight">로딩에 실패했습니다</h2>
-            <p className="text-slate-500 font-bold text-base mb-10 leading-relaxed">{error}</p>
+          <div className="text-center py-20 px-10 bg-white rounded-[3rem] shadow-xl border border-red-100">
+            <div className="text-7xl mb-8 opacity-80">👨‍🍳</div>
+            <h2 className="text-2xl font-black text-slate-900 mb-4 leading-tight">식당 정보를<br/>가져오지 못했습니다</h2>
+            <p className="text-slate-500 font-bold text-base mb-10 leading-relaxed px-4">{error}</p>
             <button 
               onClick={loadData}
-              className="w-full py-5 bg-orange-600 text-white rounded-[1.5rem] font-black text-lg shadow-xl shadow-orange-200 active:scale-95 transition-transform"
+              className="w-full py-5 bg-orange-600 text-white rounded-[1.5rem] font-black text-lg shadow-xl shadow-orange-200 active:scale-95 transition-all hover:bg-orange-700"
             >
               다시 시도하기
             </button>
@@ -99,9 +105,15 @@ const App: React.FC = () => {
             </div>
             
             <div className="space-y-4">
-              {data?.restaurants.map((item) => (
-                <RestaurantCard key={item.id} item={item} />
-              ))}
+              {data?.restaurants.length === 0 ? (
+                <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-slate-200">
+                  <p className="text-slate-400 font-bold">검색된 정보가 없습니다.</p>
+                </div>
+              ) : (
+                data?.restaurants.map((item) => (
+                  <RestaurantCard key={item.id} item={item} />
+                ))
+              )}
             </div>
 
             {/* Information Footer */}
@@ -109,17 +121,17 @@ const App: React.FC = () => {
               <div className="absolute top-0 right-0 w-32 h-32 bg-orange-600/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
               <div className="flex items-center gap-3 mb-6 relative">
                 <div className="w-10 h-10 bg-orange-600 rounded-2xl flex items-center justify-center font-black text-lg">!</div>
-                <h3 className="text-lg font-black italic">알림</h3>
+                <h3 className="text-lg font-black italic">안내사항</h3>
               </div>
               <p className="text-slate-400 text-sm leading-relaxed font-medium mb-8 relative">
-                이 리스트는 '흑백요리사 시즌2' 출연진 중 현재 가장 활발하게 운영되고 있는 전국 주요 식당들을 추천 순위별로 정리한 것입니다. 예약 정보는 <span className="text-white font-black underline decoration-orange-500">네이버 지도</span>를 통해 한 번 더 확인해 주세요.
+                이 리스트는 '흑백요리사 시즌2' 출연진 정보를 실시간 검색을 통해 정리한 것입니다. 정확한 예약 정보와 영업 시간은 <span className="text-white font-black underline decoration-orange-500">네이버 지도</span> 앱을 통해 확인해 주세요.
               </p>
               
               <div className="space-y-3 relative">
-                <p className="text-[11px] text-slate-500 font-black uppercase tracking-widest">데이터 소스</p>
+                <p className="text-[11px] text-slate-500 font-black uppercase tracking-widest">데이터 출처</p>
                 <div className="flex items-center gap-3 text-sm text-orange-400 font-black">
                   <div className="w-1.5 h-1.5 bg-orange-500 rounded-full"></div>
-                  실시간 검색 기반 성지순례 리스트
+                  실시간 AI 검색 기반 큐레이션
                 </div>
               </div>
             </div>
@@ -133,10 +145,10 @@ const App: React.FC = () => {
           <div className="flex items-center gap-2 mb-0.5">
             <div className="w-2 h-2 bg-orange-500 rounded-full animate-ping"></div>
             <span className="text-[11px] text-orange-500 font-black tracking-widest uppercase">
-              Curated Mode
+              Curated List
             </span>
           </div>
-          <span className="text-[15px] font-black text-white tracking-tight">전국 흑백요리사 추천 맛집</span>
+          <span className="text-[15px] font-black text-white tracking-tight">흑백요리사 성지순례 리스트</span>
         </div>
         <button 
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
