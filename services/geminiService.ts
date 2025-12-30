@@ -3,11 +3,12 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { RestaurantResponse } from "../types";
 
 export const fetchRestaurants = async (): Promise<RestaurantResponse> => {
-  // process.env 가 정의되지 않은 환경(일부 브라우저 직접 실행 등) 대응
-  const apiKey = typeof process !== 'undefined' ? process.env.API_KEY : '';
+  // 전역 process 객체나 window.process를 통한 안전한 참조
+  const env = (typeof process !== 'undefined' ? process.env : (window as any).process?.env) || {};
+  const apiKey = env.API_KEY;
   
   if (!apiKey) {
-    console.error("API_KEY가 설정되지 않았습니다.");
+    console.error("API_KEY is not defined in environment variables.");
     throw new Error("API_KEY_MISSING");
   }
 
@@ -22,16 +23,16 @@ export const fetchRestaurants = async (): Promise<RestaurantResponse> => {
     2. 현재 화제가 되고 있는 셰프들의 실제 식당 10곳을 선정하세요.
     3. 각 식당에 대해 다음 정보를 포함한 JSON을 생성하세요:
        - id: 1~10
-       - name: 식당 이름 (정확한 상호명)
-       - chef: 출연 셰프 이름 (예: 트리플 스타, 철가방 요리사 등 별칭 포함)
+       - name: 식당 이름
+       - chef: 출연 셰프 이름
        - chefType: 'BLACK' (흑수저) 또는 'WHITE' (백수저)
        - specialty: 대표 메뉴
        - location: 구체적인 지역 (예: 서울 강남구)
-       - description: 식당/셰프의 특징 (1문장)
-       - keywords: #태그 형식의 키워드 3개
-       - naverMapUrl: 네이버 지도 검색 결과 URL 또는 "${sourceUrl}"
+       - description: 식당 특징 (1문장)
+       - keywords: 핵심 키워드 3개
+       - naverMapUrl: 네이버 지도 검색 결과 URL
     
-    4. 반드시 한국어로 답변하며, 다른 설명 없이 오직 유효한 JSON 형식으로만 응답하세요.
+    4. 반드시 한국어로 답변하며, 오직 JSON 형식으로만 응답하세요.
   `;
 
   try {
@@ -76,7 +77,7 @@ export const fetchRestaurants = async (): Promise<RestaurantResponse> => {
       sourceUrl: sourceUrl
     };
   } catch (error) {
-    console.error("Gemini API 호출 실패:", error);
+    console.error("Gemini API error:", error);
     throw error;
   }
 };
