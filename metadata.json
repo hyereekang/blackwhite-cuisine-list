@@ -1,6 +1,6 @@
 {
-  "name": "가산 미식 가이드 (Gasan Gourmet Navigator)",
-  "description": "가산디지털단지역 주변 직장인들을 위한 구글 맵 기반 실시간 맛집 성지순례 가이드.",
+  "name": "Wanderer: AI 여행 큐레이터",
+  "description": "당신의 취향과 현재 위치를 분석하여 가장 완벽한 여행지를 제안하는 개인 맞춤형 AI 여행 가이드.",
   "requestFramePermissions": [
     "geolocation"
   ]

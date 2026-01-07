@@ -4,8 +4,19 @@ export interface GroundingSource {
   uri: string;
 }
 
-export interface RestaurantResponse {
+export interface TravelRecommendationResponse {
   content: string;
-  lastUpdated: string;
   sources: GroundingSource[];
+}
+
+export interface UserPreferences {
+  vibe: string;
+  budget: string;
+  companion: string;
+  distance: string;
+  additionalNeeds?: string;
+  location?: {
+    latitude: number;
+    longitude: number;
+  };
 }
